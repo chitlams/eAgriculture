@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { JwtModule } from "@auth0/angular-jwt";
+
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -11,7 +13,19 @@ import { CounterComponent } from './counter/counter.component';
 import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DemoMaterialModule } from './Shared/material-module';
+import { RegisterComponent } from './register/register.component';
+import { appRoutes } from "./routs";
+import { MessagesComponent } from './messages/messages.component';
+import { UserService } from "./_services/user.service";
+import { AuthService } from "./_services/auth.service";
+import { ErrorInterceptorProvider } from "./_services/error.interceptor";
+import { AlertifyService } from "./_services/alertify.service";
+import { HttpUtility } from './Shared/http.utility';
+import { AuthGaurd } from "./_gaurds/auth.gaurd";
 
+export function tokenGetter() {
+  return localStorage.getItem("token");
+}
 
 @NgModule({
   declarations: [
@@ -19,7 +33,9 @@ import { DemoMaterialModule } from './Shared/material-module';
     NavMenuComponent,
     HomeComponent,
     CounterComponent,
-    FetchDataComponent
+    FetchDataComponent,
+    RegisterComponent,
+    MessagesComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -27,14 +43,16 @@ import { DemoMaterialModule } from './Shared/material-module';
     FormsModule,
     DemoMaterialModule,
     ReactiveFormsModule,
-    RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'counter', component: CounterComponent },
-      { path: 'fetch-data', component: FetchDataComponent },
-    ]),
-    BrowserAnimationsModule
+    RouterModule.forRoot(appRoutes),
+    BrowserAnimationsModule,
+    JwtModule
   ],
-  providers: [],
+  providers: [AuthService,
+    ErrorInterceptorProvider,
+    AlertifyService,
+    AuthGaurd,
+    UserService,
+    HttpUtility],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
